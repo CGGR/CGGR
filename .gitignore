@@ -1,0 +1,6 @@
+/__pycache__/
+pull.bat
+Bundles/
+Assets/
+Archives/
+*.tmp

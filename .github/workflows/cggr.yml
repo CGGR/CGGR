@@ -1,0 +1,76 @@
+name: Download
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  download:
+    name: Download
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install pip
+      run: |
+        python -m pip install --upgrade pip
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Get dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Download bundles, extract images and make archive
+      id: down_ext_zip
+      continue-on-error: true
+      run: |
+        python download.py
+    - name: Upload Artifacts
+      if: ${{ steps.down_ext_zip.outcome == 'success' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.CRC }}
+        path: Archives/${{ env.CRC }}.zip
+    - name: Create Release
+      if: ${{ steps.down_ext_zip.outcome == 'success' }}
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+      with:
+        tag_name: ${{ env.CRC }}_${{ github.run_id }}_${{ github.run_attempt }}
+        release_name: ${{ env.CRC }}
+        body: ${{ env.CRC }}
+    - name: Upload Release Asset
+      if: ${{ steps.create_release.outcome == 'success' }}
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./Archives/${{ env.CRC }}.zip
+        asset_name: ${{ env.CRC }}.zip
+        asset_content_type: application/zip
+    - name: Discord
+      if: ${{ steps.upload-release-asset.outcome == 'success' }}
+      env: 
+        BOT_URL: ${{ secrets.DISCORD_URL }}
+        BOT_URL2: ${{ secrets.DISCORD_URL2 }}
+      run: |
+        python discord.py "$BOT_URL" "$BOT_URL2" ${{ env.CRC }} ${{ steps.upload-release-asset.outputs.browser_download_url }}
+    - name: Push changes
+      if: ${{ always() }}
+      run: |
+        git add old.json
+        git config user.name "Automated"
+        git config user.email "actions@users.noreply.github.com"
+        git diff-index --quiet --cached HEAD || git commit -m "Automated"
+        git push origin master
