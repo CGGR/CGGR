@@ -15,10 +15,10 @@ class MyWebhook:
 	def sendImg(self, filepath, filename):
 		with open(filepath, "rb") as f:
 			self.webhook.add_file(file=f.read(), filename=filename)
-		self.filecount += 1
-		if self.filecount == 10:
-			response = self.webhook.execute(remove_embeds=True, remove_files=True)
-			self.filecount = 0
+		#self.filecount += 1
+		#if self.filecount == 10:
+		response = self.webhook.execute(remove_embeds=True, remove_files=True)
+		#self.filecount = 0
 	def addEmbed(self, embed):
 		self.webhook.add_embed(embed)
 	def execute(self):
