@@ -14,7 +14,13 @@ env_file = os.getenv('GITHUB_ENV')
 with open(env_file, "a") as f:
     f.write("CRC=" + cg.GetCrc())
 
-update = (set(cg.fileList) - set(old))
+update = []
+for filename in cg.fileList:
+	try:
+		if cg.fileList[filename] != old[filename]: #Updated file
+			update.append(filename)
+	except KeyError as e: #New file
+		update.append(filename)
 
 cg.SaveFileList("old.json")
 
