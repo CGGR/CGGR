@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "download.py", line 44, in <module>
+    shutil.make_archive(zipfile, 'zip', "Assets")
+  File "/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/shutil.py", line 1038, in make_archive
+    os.chdir(root_dir)
+FileNotFoundError: [Errno 2] No such file or directory: 'Assets'
