@@ -1,6 +1,8 @@
-import requests, os, json, UnityPy, shutil
+import requests, os, json, UnityPy, shutil, sys
 from datetime import datetime
 import cggr
+
+sys.stderr = open('err.log', 'w')
 
 whitelist = ("codelink/illust1024/", "character/background/", "character/messageface/", "character/illust2048/", "character/illustfull/")
 
