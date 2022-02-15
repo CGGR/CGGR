@@ -73,6 +73,7 @@ jobs:
         git config user.name "Automated"
         git config user.email "actions@users.noreply.github.com"
         git diff-index --quiet --cached HEAD || git commit -m "Error"
+        git push origin master
     - name: Push update
       if: ${{ steps.down_ext_zip.outcome == 'success' }}
       run: |
