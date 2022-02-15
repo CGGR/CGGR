@@ -28,11 +28,8 @@ class CGGR:
 		r = requests.get(self.assetbundleInfoUrl)
 		aes = AES.new(bytes.fromhex("AD4F2E98C5A023DA578E6B85D786EAC8"), AES.MODE_CBC, bytes.fromhex("0123456789ABCDEF0123456789ABCDEF"))
 		self.decode = aes.decrypt(base64.b64decode(r.content)).decode("utf-8")
-		try:
-			self.bundleList = json.loads(self.decode.replace("\3", "").replace("\4", ""))
-			self.GetFileList()
-		except:
-			print("JSON corrupted")
+		self.bundleList = json.loads(self.decode[:self.decode.rfind('}') + 1])
+		self.GetFileList()
 
 	def GetFileList(self):
 		self.fileList = {}
