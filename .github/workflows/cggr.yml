@@ -66,15 +66,15 @@ jobs:
         BOT_URL2: ${{ secrets.DISCORD_URL2 }}
       run: |
         python discord.py "$BOT_URL" "$BOT_URL2" ${{ env.CRC }} ${{ steps.upload-release-asset.outputs.browser_download_url }}
-    - name: Push Err
+    - name: Push error
       if: ${{ steps.down_ext_zip.outcome == 'failure' }}
       run: |
         git add err.log
         git config user.name "Automated"
         git config user.email "actions@users.noreply.github.com"
         git diff-index --quiet --cached HEAD || git commit -m "Error"
-    - name: Push changes
-      if: ${{ always() }}
+    - name: Push update
+      if: ${{ steps.down_ext_zip.outcome == 'success' }}
       run: |
         git add old.json
         git config user.name "Automated"
